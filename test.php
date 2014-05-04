@@ -6,6 +6,7 @@ $password = "alexis_roque@live.com";
 $hostname = "localhost";
 $db = "particulado";
 
+//conecto a la bd
 $con=mysqli_connect($hostname,$username,$password, $db);
 
 ?>
@@ -31,10 +32,14 @@ $con=mysqli_connect($hostname,$username,$password, $db);
 
 <?php
 $count =1;
+//somedate es la fecha q estamos buscando hasta ahora solamente tenemos hasta el 10 de enero
 $somedate=1062013;
+//el primer result busca los datos de dispersion de la fecha q eliges
 $result = mysqli_query($con, 'Select Min, Blue, Green, Red from Relation where date='.$somedate.' and Graph_id="dispersion"');
+//el segundo result busca los datod de absorcion
 $result2 = mysqli_query($con, 'Select Min, Blue, Green, Red from Relation where date='.$somedate.' and Graph_id="absorcion"');
 
+//este script es para hacer las graficas
 echo '<script type="text/javascript">
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawChart);
@@ -42,7 +47,10 @@ echo '<script type="text/javascript">
         
             
           ["Day", "Blue", "Green", "Red"],';
+//el while saca los datos de todo los rows que cumplen con el query de arriba          
      while($row = mysqli_fetch_array($result2)){
+       //el if es para chekiar q se acabaron los rows ahora mismo esta un poco marroneao pero funciona
+       //lo unico que cambia entre los dos echos es al final ']' , esto es para que la grafica funcione
         if($count!=794){
          echo '[', $row['Min'],',', $row['Blue'],',',$row['Green'],',',$row['Red'],'],';
         $count++;
@@ -50,7 +58,7 @@ echo '<script type="text/javascript">
          echo '[', $row['Min'],',', $row['Blue'],',',$row['Green'],',',$row['Red'],']';
         }
      }
-
+//aqui lo que hay son diferentes opciones que le puedes poner a la grafica
       echo' ]);
             
         var options = {
@@ -63,6 +71,7 @@ echo '<script type="text/javascript">
       }
 
     </script>';
+//esto es lo mismo pero para la segunda grafica    
 $count2 =1;
 echo '<script type="text/javascript">
       google.load("visualization", "1", {packages:["corechart"]});
