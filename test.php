@@ -1,17 +1,12 @@
-<?php $data= file("data_A13_10.csv");
-      $data2 = file("data_S11_10.csv");
+<?php
+$data= file("data_A13_10.csv");
+$data2 = file("data_S11_10.csv");
 $username = "mroque";
 $password = "alexis_roque@live.com";
 $hostname = "localhost";
 $db = "particulado";
 
-$con=mysql_connect($hostname,$username,$password);
-mysql_select_db($db);
-
-// Check connection
-//if (mysqli_connect_errno()) {
-//  echo "Failed to connect to MySQL: " . mysqli_connect_error();
-//}
+$con=mysqli_connect($hostname,$username,$password, $db);
 
 ?>
 <!DOCTYPE html>
@@ -35,34 +30,31 @@ mysql_select_db($db);
 
 
 <?php
-$days = 1437;
+$count =1;
+$somedate=1062013;
+$result = mysqli_query($con, 'Select Min, Blue, Green, Red from Relation where date='.$somedate.' and Graph_id="dispersion"');
+$result2 = mysqli_query($con, 'Select Min, Blue, Green, Red from Relation where date='.$somedate.' and Graph_id="absorcion"');
 
- echo '<script type="text/javascript">
+echo '<script type="text/javascript">
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawChart);
-      function drawChart() {
-        var data = google.visualization.arrayToDataTable([
+      function drawChart() {        var data = google.visualization.arrayToDataTable([
         
             
           ["Day", "Blue", "Green", "Red"],';
-         for($x=1; $x<$days; $x++){
-            $arr = explode(",", $data[$x]);
-            if($x+1>=$days){
-if(empty($arr[5])==false){
-                 echo '[', floatVal($arr[1]),', ', floatVal($arr[5]),', ', floatVal($arr[6]),',',floatVal($arr[7]),']';
-              }
-            }else{
-                if(empty($arr[5])==false){
-                 echo '[', floatVal($arr[1]),', ', floatVal($arr[5]),', ', floatVal($arr[6]),',',floatVal($arr[7]),'],';
-               }
-            }
-          }
+     while($row = mysqli_fetch_array($result2)){
+        if($count!=794){
+         echo '[', $row['Min'],',', $row['Blue'],',',$row['Green'],',',$row['Red'],'],';
+        $count++;
+        }else{
+         echo '[', $row['Min'],',', $row['Blue'],',',$row['Green'],',',$row['Red'],']';
+        }
+     }
 
-
-       echo' ]);
+      echo' ]);
             
         var options = {
-          title: "Absorcion 1/1/2013",
+          title: "Absorcion '.$somedate.'",
           colors: ["blue", "green", "red"]
         };
 
@@ -71,33 +63,27 @@ if(empty($arr[5])==false){
       }
 
     </script>';
-
+$count2 =1;
 echo '<script type="text/javascript">
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawChart);
-      function drawChart() {
-        var data = google.visualization.arrayToDataTable([
+      function drawChart() {        var data = google.visualization.arrayToDataTable([
         
             
           ["Day", "Blue", "Green", "Red"],';
-         for($x=1; $x<$days; $x++){
-            $arr = explode(",", $data2[$x]);
-            if($x+1>=$days){
-              if(empty($arr[4])==false){
-                 echo '[', floatVal($arr[1]),', ', floatVal($arr[4]),', ', floatVal($arr[5]),',',floatVal($arr[6]),']';
-              }
-            }else{
-                if(empty($arr[4])==false){
-                 echo '[', floatVal($arr[1]),', ', floatVal($arr[4]),', ', floatVal($arr[5]),',',floatVal($arr[6]),'],';
-               }
-            }
-          }
+     while($row = mysqli_fetch_array($result)){
+        $count2++;
+        if($count2!=818){
+         echo '[', $row['Min'],',', $row['Blue'],',',$row['Green'],',',$row['Red'],'],';
+          }else{
+         echo '[', $row['Min'],',', $row['Blue'],',',$row['Green'],',',$row['Red'],']';
+        }
+     }
 
-
-       echo' ]);
+      echo' ]);
             
         var options = {
-          title: "Dispersion 1/1/2013",
+          title: "Dispersion '.$somedate.'",          
           colors: ["blue", "green", "red"]
         };
 
@@ -107,13 +93,13 @@ echo '<script type="text/javascript">
 
     </script>';
 
+
 ?>
 
   </head>
 
   <body>
-
-        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+ <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
                 <div class="container">
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-6">
           <ul class="nav navbar-nav ">
@@ -148,6 +134,7 @@ echo '<script type="text/javascript">
 
     <div id="chart_div" style="width: 1100px; height: 500px;"></div>
     <div id="chart_div2" style="width: 1100px; height: 500px;"></div>
+
     </div>
 
 
