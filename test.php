@@ -6,7 +6,6 @@ $password = "alexis_roque@live.com";
 $hostname = "localhost";
 $db = "particulado";
 
-//conecto a la bd
 $con=mysqli_connect($hostname,$username,$password, $db);
 
 ?>
@@ -32,14 +31,57 @@ $con=mysqli_connect($hostname,$username,$password, $db);
 
 <?php
 $count =1;
-//somedate es la fecha q estamos buscando hasta ahora solamente tenemos hasta el 10 de enero
-$somedate=1062013;
-//el primer result busca los datos de dispersion de la fecha q eliges
-$result = mysqli_query($con, 'Select Min, Blue, Green, Red from Relation where date='.$somedate.' and Graph_id="dispersion"');
-//el segundo result busca los datod de absorcion
-$result2 = mysqli_query($con, 'Select Min, Blue, Green, Red from Relation where date='.$somedate.' and Graph_id="absorcion"');
+$date_word = str_split(strVal($_GET["date"]));
 
-//este script es para hacer las graficas
+if(count($date_word)==8){
+        switch($date_word[1]){
+                case "0":
+                  $month = "octubre";
+                  break;
+                case "1":
+                  $month = "noviembre";
+                  break;
+                case "2":
+                  $month = "diciembre";
+                  break;
+        }
+}else{
+
+switch($date_word[0]){
+        case "1":
+          $month = "enero";
+  break;
+        case "2":
+          $month = "febrero";
+          break;
+        case "3":
+          $month = "marzo";
+          break;
+        case "4":
+          $month = "abril";
+          break;
+        case "5":
+          $month = "mayo";
+          break;
+        case "6":
+          $month = "junio";
+          break;
+        case "7":
+          $month = "julio";
+          break;
+        case "8":
+          $month = "agosto";
+          break;
+        case "9":
+          $month = "septiembre";
+          break;
+}
+}
+//$somedate=1062013;
+$result = mysqli_query($con, 'Select Min, Blue, Green, Red from Relation where date='.$_GET["date"].' and Graph_id="dispersion"');
+$result2 = mysqli_query($con, 'Select Min, Blue, Green, Red from Relation where date='.$_GET["date"].' and Graph_id="absorcion"');
+$dates = mysqli_query($con, 'Select * from Date');
+
 echo '<script type="text/javascript">
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawChart);
@@ -47,10 +89,7 @@ echo '<script type="text/javascript">
         
             
           ["Day", "Blue", "Green", "Red"],';
-//el while saca los datos de todo los rows que cumplen con el query de arriba          
      while($row = mysqli_fetch_array($result2)){
-       //el if es para chekiar q se acabaron los rows ahora mismo esta un poco marroneao pero funciona
-       //lo unico que cambia entre los dos echos es al final ']' , esto es para que la grafica funcione
         if($count!=794){
          echo '[', $row['Min'],',', $row['Blue'],',',$row['Green'],',',$row['Red'],'],';
         $count++;
@@ -58,11 +97,17 @@ echo '<script type="text/javascript">
          echo '[', $row['Min'],',', $row['Blue'],',',$row['Green'],',',$row['Red'],']';
         }
      }
-//aqui lo que hay son diferentes opciones que le puedes poner a la grafica
+
       echo' ]);
             
         var options = {
-          title: "Absorcion '.$somedate.'",
+          title: "Absorcion ';
+ if($date_word[1]==0){
+        echo $date_word[2], "/", $month, "/", $date_word[3],$date_word[4],$date_word[5],$date_word[6];
+        }else{
+        echo $date_word[1],$date_word[2],"/", $month, "/", $date_word[3],$date_word[4],$date_word[5],$date_word[6];
+        }
+        echo '",
           colors: ["blue", "green", "red"]
         };
 
@@ -71,12 +116,13 @@ echo '<script type="text/javascript">
       }
 
     </script>';
-//esto es lo mismo pero para la segunda grafica    
 $count2 =1;
 echo '<script type="text/javascript">
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawChart);
-      function drawChart() {        var data = google.visualization.arrayToDataTable([
+      function drawChart() {        
+
+      var data = google.visualization.arrayToDataTable([
         
             
           ["Day", "Blue", "Green", "Red"],';
@@ -92,7 +138,14 @@ echo '<script type="text/javascript">
       echo' ]);
             
         var options = {
-          title: "Dispersion '.$somedate.'",          
+          title: "Dispersion ';
+        if($date_word[1]==0){
+        echo $date_word[2], "/", $month, "/", $date_word[3],$date_word[4],$date_word[5],$date_word[6];
+        }else{
+        echo $date_word[1],$date_word[2],"/", $month, "/", $date_word[3],$date_word[4],$date_word[5],$date_word[6];
+        }
+
+        echo '",          
           colors: ["blue", "green", "red"]
         };
 
@@ -101,21 +154,19 @@ echo '<script type="text/javascript">
       }
 
     </script>';
-
-
 ?>
 
   </head>
 
   <body>
- <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
                 <div class="container">
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-6">
           <ul class="nav navbar-nav ">
-            <li><a href="index.html">Home</a></li>
-            <li class="active"><a href="historial.html">Historial</a></li>
-            <li><a href="da.html">Descargar Archivos</a></li>
-                        <li><a href= "info.html">Informacion Extra</a></li>
+            <li><a href="index.php">Home</a></li>
+            <li class="active"><a href="test.php?date=1012013">Historial</a></li>
+            <li><a href= "info.html">Informacion Extra</a></li>
           </ul>
         </div>
                 </div>
@@ -129,24 +180,32 @@ echo '<script type="text/javascript">
     </div>
 
     <div class="container">
-       <p><b>Escoja la fecha que desea verificar</b></p>
+       <h4><b>Escoja la fecha que desea verificar</b></h4>
                 <div class="btn-group">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        1/1/2013
+                        <?php echo $_GET["date"];?>
                         <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                                <li><a href="#">4/27/2014</a></li>
-                                <li><a href="#">4/26/2014</a></li>
+                        <?php
+                                while($row = mysqli_fetch_array($dates)){
+                                        echo '<li><a href="test.php?date='.$row["Date_id"].'">'.strVal($row["Date_id"]).'</a></li>';
+                                }
+                        ?>
                         </ul>
                 </div>
 
     <div id="chart_div" style="width: 1100px; height: 500px;"></div>
     <div id="chart_div2" style="width: 1100px; height: 500px;"></div>
+<?php
+for($x=0;$x<count($date_word);$x++){
+ echo $date_word[$x],",";
+}
+echo $month;
+echo count($date_word);
+?>
 
     </div>
-
-
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -155,3 +214,5 @@ echo '<script type="text/javascript">
     <script src="js/bootstrap.min.js"></script>
   </body>
 </html>
+
+
